@@ -34,7 +34,7 @@ First, download dataset with:
 To train a model with downloaded dataset:
 
     $ python main.py --dataset mnist --input_height=28 --output_height=28 --train
-    $ python main.py --dataset face --input_height=108 --train --crop --batch_size 64
+    $ python main.py --dataset face --input_height=96 --train --crop --batch_size 64
 
     $ python main.py --dataset sface --input_height=96 --train --batch_size 16 --sample_steps 20 --epoch 30
 
