@@ -438,6 +438,8 @@ class DCGAN(object):
         s_h8, s_w8 = conv_out_size_same(s_h4, 2), conv_out_size_same(s_w4, 2)
         s_h16, s_w16 = conv_out_size_same(s_h8, 2), conv_out_size_same(s_w8, 2)
 
+        print("sampler:",s_h,s_w,s_h2,s_w2,s_h4,s_w4,s_h8,s_w8,s_w16,s_h16)
+
         # project `z` and reshape
         h0 = tf.reshape(
             linear(z, self.gf_dim*8*s_h16*s_w16, 'g_h0_lin'),

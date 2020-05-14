@@ -177,11 +177,13 @@ def visualize(sess, dcgan, config, option):
     save_images(samples, [image_frame_dim, image_frame_dim], './samples/test_%s.png' % strftime("%Y-%m-%d-%H-%M-%S", gmtime()))
   elif option == 1:
     values = np.arange(0, 1, 1./config.batch_size)
-    for idx in xrange(dcgan.z_dim):
+    # for idx in xrange(dcgan.z_dim):
+    for idx in xrange(config.num_test):               # num_test为输入的batch数，每个batch生成一个n*n的图片
       print(" [*] %d" % idx)
-      z_sample = np.random.uniform(-1, 1, size=(config.batch_size , dcgan.z_dim))
-      for kdx, z in enumerate(z_sample):
+      z_sample = np.random.uniform(-1, 1, size=(config.batch_size, dcgan.z_dim))     # 生成每张图片的输入数据
+      '''for kdx, z in enumerate(z_sample):                                          # 没懂！！标记每个输入噪声？？
         z[idx] = values[kdx]
+        print("z[",idx,"]=",z[idx])'''
 
       if config.dataset == "mnist":
         y = np.random.choice(10, config.batch_size)
