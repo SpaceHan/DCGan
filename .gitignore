@@ -1,11 +1,14 @@
 # Data
 data
 samples
+assets
 *.zip
 logs
 test*
 
 web/js/gen_layers.js
+
+board.bat
 
 # checkpoint
 checkpoint
