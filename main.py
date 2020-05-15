@@ -23,11 +23,11 @@ flags.DEFINE_string("checkpoint_dir", "checkpoint", "Directory name to save the 
 flags.DEFINE_string("data_dir", "./data", "Root directory of dataset [data]")
 flags.DEFINE_string("sample_dir", "samples", "Directory name to save the image samples [samples]")
 flags.DEFINE_boolean("train", True, "True for training, False for testing [False]")
-flags.DEFINE_boolean("crop", True, "True for training, False for testing [False]")
-flags.DEFINE_boolean("visualize", False, "True for visualizing, False for nothing [False]")
-flags.DEFINE_integer("num_test", 12, "Number of images to generate during test. [100]")
-flags.DEFINE_integer("input_noise_dim", 768, "Dimension of the input for G. [100]")
-flags.DEFINE_integer("sample_steps", 200, "Steps to sample and save weights. [100]")
+flags.DEFINE_boolean("crop", False, "True for training, False for testing [False]")
+flags.DEFINE_boolean("visualize", True, "True for visualizing, False for nothing [False]")
+flags.DEFINE_integer("num_test", 20, "Number of images to generate during test. [100]")
+flags.DEFINE_integer("input_noise_dim", 512, "Dimension of the input for G. [100]")
+flags.DEFINE_integer("save_epochs", 2, "Epochs to sample and save weights. [1]")
 FLAGS = flags.FLAGS
 
 def main(_):
@@ -65,7 +65,7 @@ def main(_):
           checkpoint_dir=FLAGS.checkpoint_dir,
           sample_dir=FLAGS.sample_dir,
           data_dir=FLAGS.data_dir,
-          sample_steps=FLAGS.sample_steps)
+          save_epochs=FLAGS.save_epochs)
     else:
       dcgan = DCGAN(
           sess,
@@ -82,7 +82,7 @@ def main(_):
           checkpoint_dir=FLAGS.checkpoint_dir,
           sample_dir=FLAGS.sample_dir,
           data_dir=FLAGS.data_dir,
-          sample_steps=FLAGS.sample_steps)
+          save_epochs=FLAGS.save_epochs)
 
     show_all_variables()
 

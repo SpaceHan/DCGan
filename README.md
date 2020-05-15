@@ -27,6 +27,9 @@ Tensorflow implementation of [Deep Convolutional Generative Adversarial Networks
 
 ## Usage
 
+conda activate kerascpu
+tensorboard --logdir="./logs"
+
 First, download dataset with:
 
     $ python download.py mnist celebA
@@ -35,6 +38,16 @@ To train a model with downloaded dataset:
 
     $ python main.py --dataset mnist --input_height=28 --output_height=28 --train
     $ python main.py --dataset face --input_height=96 --train --crop --batch_size 64
+
+    $ python main.py --dataset tusimple --output_width=320 --output_height=180 --input_width=320 --input_height=180 --train --crop False --input_noise_dim=256 --batch_size 4 --epoch 10
+
+    $ python main.py --dataset pupu --output_width=128 --output_height=128 --input_width=128 --input_height=128 --input_noise_dim 1024 --train --crop=False --batch_size 4 --epoch 40
+
+    test pupu      确保宽高、batch_size与权重文件夹相同
+    $ python main.py --dataset pupu --output_width=128 --output_height=128 --input_width=128 --input_height=128 --batch_size 4 --input_noise_dim 1024 --train=False --num_test 30
+
+    $ test tusimple
+    $ python main.py --dataset tusimple --output_width=320 --output_height=180 --input_width=320 --input_height=180 --train=False --input_noise_dim=256 --batch_size 4 --num_test 50
 
     $ python main.py --dataset sface --input_height=96 --train --batch_size 16 --sample_steps 20 --epoch 30
 

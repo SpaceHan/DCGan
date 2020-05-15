@@ -18,7 +18,7 @@ class DCGAN(object):
          batch_size=64, sample_num = 64, output_height=64, output_width=64,
          y_dim=None, z_dim=100, gf_dim=64, df_dim=64,
          gfc_dim=1024, dfc_dim=1024, c_dim=3, dataset_name='default',
-         input_fname_pattern='*.jpg', checkpoint_dir=None, sample_dir=None, data_dir='./data',sample_steps=200):
+         input_fname_pattern='*.jpg', checkpoint_dir=None, sample_dir=None, data_dir='./data',save_epochs=1):
     """
 
     Args:
@@ -37,7 +37,7 @@ class DCGAN(object):
 
     self.batch_size = batch_size
     self.sample_num = sample_num
-    self.sample_steps = sample_steps
+    self.save_epochs = save_epochs
 
     self.input_height = input_height
     self.input_width = input_width
@@ -299,39 +299,40 @@ class DCGAN(object):
           % (epoch, config.epoch, idx, batch_idxs,
             time.time() - start_time, errD_fake+errD_real, errG))
 
-        if np.mod(counter, self.sample_steps) == 2:
-          if config.dataset == 'mnist':
+        # if np.mod(counter, self.sample_steps) == 2:
+      if np.mod(epoch+1, self.save_epochs) == 0:
+        # sample
+        if config.dataset == 'mnist':
+          samples, d_loss, g_loss = self.sess.run(
+            [self.sampler, self.d_loss, self.g_loss],
+            feed_dict={
+                self.z: sample_z,
+                self.inputs: sample_inputs,
+                self.y:sample_labels,
+            }
+          )
+          save_images(samples, image_manifold_size(samples.shape[0]),
+                './{}/train_{:02d}_{:04d}.png'.format(config.sample_dir, epoch, idx))
+          print("[Sample] d_loss: %.8f, g_loss: %.8f" % (d_loss, g_loss)) 
+        else:
+          try:
             samples, d_loss, g_loss = self.sess.run(
               [self.sampler, self.d_loss, self.g_loss],
               feed_dict={
                   self.z: sample_z,
                   self.inputs: sample_inputs,
-                  self.y:sample_labels,
-              }
+              },
             )
+            print(samples.shape)
             save_images(samples, image_manifold_size(samples.shape[0]),
                   './{}/train_{:02d}_{:04d}.png'.format(config.sample_dir, epoch, idx))
             print("[Sample] d_loss: %.8f, g_loss: %.8f" % (d_loss, g_loss)) 
-          else:
-            try:
-              samples, d_loss, g_loss = self.sess.run(
-                [self.sampler, self.d_loss, self.g_loss],
-                feed_dict={
-                    self.z: sample_z,
-                    self.inputs: sample_inputs,
-                },
-              )
-              print(samples.shape)
-              save_images(samples, image_manifold_size(samples.shape[0]),
-                    './{}/train_{:02d}_{:04d}.png'.format(config.sample_dir, epoch, idx))
-              print("[Sample] d_loss: %.8f, g_loss: %.8f" % (d_loss, g_loss)) 
-            except:
-              print("error sampling picture!...")
+          except:
+            print("error sampling picture!...")
 
-            self.save(config.checkpoint_dir, counter)
+          # save weights
+          self.save(config.checkpoint_dir, counter)
 
-        #if np.mod(counter, self.sample_steps) == 2:
-          #self.save(config.checkpoint_dir, counter)
 
   def discriminator(self, image, y=None, reuse=False):
     with tf.variable_scope("discriminator") as scope:
