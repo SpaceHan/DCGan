@@ -155,15 +155,13 @@ class DCGAN(object):
 
   def train(self, config):
     # 优化器
-    
-    g_optim = tf.train.AdamOptimizer(config.learning_rate, beta1=config.beta1) \
+    global_step = tf.Variable(0, name='global_step', trainable=False)
+    learning_rate = tf.train.exponential_decay(
+            learning_rate=config.learning_rate, global_step=global_step, decay_steps=100, decay_rate=0.96, staircase=False)
+    g_optim = tf.train.AdamOptimizer(learning_rate, beta1=config.beta1) \
               .minimize(self.g_loss, var_list=self.g_vars)
-    d_optim = tf.train.AdamOptimizer(config.learning_rate, beta1=config.beta1) \
+    d_optim = tf.train.AdamOptimizer(learning_rate, beta1=config.beta1) \
               .minimize(self.d_loss, var_list=self.d_vars)
-    '''g_optim = tf.train.GradientDescentOptimizer(0.0001) \
-              .minimize(self.g_loss, var_list=self.g_vars)
-    d_optim = tf.train.GradientDescentOptimizer(0.0001) \
-              .minimize(self.d_loss, var_list=self.d_vars)'''
     try:
       tf.global_variables_initializer().run()
     except:

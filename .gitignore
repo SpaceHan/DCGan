@@ -1,17 +1,19 @@
 # Data
 data
 samples
-assets
 *.zip
+*.rar
 logs
 test*
 
-web/js/gen_layers.js
-
-board.bat
-
 # checkpoint
 checkpoint
+
+train_cmd.txt
+
+
+web/js/gen_layers.js
+
 
 # trash
 .dropbox

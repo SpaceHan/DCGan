@@ -1,135 +1,96 @@
 # DCGAN in Tensorflow
 
-Tensorflow implementation of [Deep Convolutional Generative Adversarial Networks](http://arxiv.org/abs/1511.06434) which is a stabilize Generative Adversarial Networks. The referenced torch code can be found [here](https://github.com/soumith/dcgan.torch).
+本代码基于Carpdm的DCGAN实现（原代码地址：https://github.com/carpedm20/DCGAN-tensorflow），添加如下改善：
 
-![alt tag](DCGAN.png)
-
-* [Brandon Amos](http://bamos.github.io/) wrote an excellent [blog post](http://bamos.github.io/2016/08/09/deep-completion/) and [image completion code](https://github.com/bamos/dcgan-completion.tensorflow) based on this repo.
-* *To avoid the fast convergence of D (discriminator) network, G (generator) network is updated twice for each D network update, which differs from original paper.*
-
-
-## Online Demo
-
-[<img src="https://raw.githubusercontent.com/carpedm20/blog/master/content/images/face.png">](http://carpedm20.github.io/faces/)
-
-[link](http://carpedm20.github.io/faces/)
+1. 原代码中将测试生成数目与生成器噪声维度混用，本代码中将测试图片数目（原generate_test_images参数，改为num_test）与噪声维度参数（添加的input_noise_dim）分离；
+2. 源代码使用step计数保存训练权重及sample，改为通过epoch并增加save_epochs参数；
+3. 在优化器中添加学习率衰减tf.train.exponential_decay，衰减参数可自行调整，位于train方法开头；
 
 
-## Prerequisites
 
-- Python 2.7 or Python 3.3+
-- [Tensorflow 0.12.1](https://github.com/tensorflow/tensorflow/tree/r0.12)
-- [SciPy](http://www.scipy.org/install.html)
-- [pillow](https://github.com/python-pillow/Pillow)
+### DCGAN 论文
+
+《深度卷积生成对抗网络》： [Deep Convolutional Generative Adversarial Networks](http://arxiv.org/abs/1511.06434) 。
+
+
+
+
+
+
+
+- 下面介绍一下我使用的软件环境，以及代码文件的基本用法；更多介绍及实验结果可查看原repo。
+
+
+
+
+## 环境配置
+
+下面是我自己使用的版本，可选的两个并未使用。
+
+- Python 3.6
+- [Tensorflow 1.14.1](https://github.com/tensorflow/tensorflow/tree/r1.14)
+- [SciPy 1.2.1](http://www.scipy.org/install.html)
+- [pillow 7.1.2](https://github.com/python-pillow/Pillow)
 - (Optional) [moviepy](https://github.com/Zulko/moviepy) (for visualization)
 - (Optional) [Align&Cropped Images.zip](http://mmlab.ie.cuhk.edu.hk/projects/CelebA.html) : Large-scale CelebFaces Dataset
 
 
-## Usage
 
-conda activate kerascpu
-tensorboard --logdir="./logs"
 
-First, download dataset with:
+
+### 使用方法
+
+#### 一、使用MNIST及celebA数据集
+
+##### 1.运行download.py下载数据集：
 
     $ python download.py mnist celebA
 
-To train a model with downloaded dataset:
+##### 2.开始训练:
 
-    $ python main.py --dataset mnist --input_height=28 --output_height=28 --train
-    $ python main.py --dataset face --input_height=96 --train --crop --batch_size 64
-
+    $ python main.py --dataset mnist --input_height=28 --output_height=28 --train --crop=False --input_noise_dim=512 --batch_size 64 --epoch 15
+    
     $ python main.py --dataset tusimple --output_width=320 --output_height=180 --input_width=320 --input_height=180 --train --crop False --input_noise_dim=256 --batch_size 4 --epoch 10
-
+    
     $ python main.py --dataset pupu --output_width=128 --output_height=128 --input_width=128 --input_height=128 --input_noise_dim 1024 --train --crop=False --batch_size 4 --epoch 40
-
+    
     test pupu      确保宽高、batch_size与权重文件夹相同
     $ python main.py --dataset pupu --output_width=128 --output_height=128 --input_width=128 --input_height=128 --batch_size 4 --input_noise_dim 1024 --train=False --num_test 30
-
+    
     $ test tusimple
     $ python main.py --dataset tusimple --output_width=320 --output_height=180 --input_width=320 --input_height=180 --train=False --input_noise_dim=256 --batch_size 4 --num_test 50
-
-    $ python main.py --dataset sface --input_height=96 --train --batch_size 16 --sample_steps 20 --epoch 30
+    
+    $ python main.py --dataset face --input_height=96 --train --batch_size 16 --sample_steps 20 --epoch 30
 
 To test with an existing model:
 
     $ python main.py --dataset mnist --input_height=28 --output_height=28
     $ python main.py --dataset celebA --input_height=108 --crop
 
-Or, you can use your own dataset (without central crop) by:
+#### 二、使用其它数据集:
 
     $ mkdir data/DATASET_NAME
-    ... add images to data/DATASET_NAME ...
-    $ python main.py --dataset DATASET_NAME --train
-    $ python main.py --dataset DATASET_NAME
-    $ # example
-    $ python main.py --dataset=eyes --input_fname_pattern="*_cropped.png" --train
-
-If your dataset is located in a different root directory:
-
-    $ python main.py --dataset DATASET_NAME --data_dir DATASET_ROOT_DIR --train
-    $ python main.py --dataset DATASET_NAME --data_dir DATASET_ROOT_DIR
-    $ # example
-    $ python main.py --dataset=eyes --data_dir ../datasets/ --input_fname_pattern="*_cropped.png" --train
+    ... 在data/目录中以数据集名称DATASET_NAME为名的文件夹并放入训练数据 ...
     
+    $ 如果数据集位于其他目录DATASET_ROOT_DIR：
+    $ python main.py --dataset DATASET_NAME --data_dir DATASET_ROOT_DIR --train
+    
+    $ 训练（例）：
+    $ python main.py --dataset tusimple --output_width=192 --output_height=108 --input_width=192 --input_height=108 --train --crop=False --input_noise_dim=1024 --batch_size 64 --epoch 15
+    
+    $ 训练中将以*DATASET_NAME_BATCHSIZE_HEIGHT_WIDTH*的方式保存权重
 
-## Results
+#### 三、使用预训练模型生成测试图片
 
-![result](assets/training.gif)
+训练之后可以使用保存的权重进行生成:
 
-### celebA
-
-After 6th epoch:
-
-![result3](assets/result_16_01_04_.png)
-
-After 10th epoch:
-
-![result4](assets/test_2016-01-27%2015:08:54.png)
-
-### Asian face dataset
-
-![custom_result1](web/img/change5.png)
-
-![custom_result1](web/img/change2.png)
-
-![custom_result2](web/img/change4.png)
-
-### MNIST
-
-MNIST codes are written by [@PhoenixDai](https://github.com/PhoenixDai).
-
-![mnist_result1](assets/mnist1.png)
-
-![mnist_result2](assets/mnist2.png)
-
-![mnist_result3](assets/mnist3.png)
-
-More results can be found [here](./assets/) and [here](./web/img/).
+    $ python main.py --dataset tusimple --output_width=192 --output_height=108 --input_width=192 --input_height=108 --train=False --batch_size 64 --num_test 50
+    
+    $ num_test代表要生成的图片数目，但由于训练中将以*DATASET_NAME_BATCHSIZE_HEIGHT_WIDTH*的方式保存权重，仍需携带batchSize参数。
 
 
-## Training details
-
-Details of the loss of Discriminator and Generator (with custom dataset not celebA).
-
-![d_loss](assets/d_loss.png)
-
-![g_loss](assets/g_loss.png)
-
-Details of the histogram of true and fake result of discriminator (with custom dataset not celebA).
-
-![d_hist](assets/d_hist.png)
-
-![d__hist](assets/d__hist.png)
 
 
-## Related works
+## 作者
 
-- [BEGAN-tensorflow](https://github.com/carpedm20/BEGAN-tensorflow)
-- [DiscoGAN-pytorch](https://github.com/carpedm20/DiscoGAN-pytorch)
-- [simulated-unsupervised-tensorflow](https://github.com/carpedm20/simulated-unsupervised-tensorflow)
-
-
-## Author
-
-Taehoon Kim / [@carpedm20](http://carpedm20.github.io/)
+Han Ruizhi / [@Han Zhizhi](https://github.com/HanZhizhi//)
