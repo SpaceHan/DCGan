@@ -6,6 +6,9 @@ samples
 logs
 test*
 
+.idea
+
+
 # checkpoint
 checkpoint
 
