@@ -74,10 +74,3 @@
     $ python main.py --dataset tusimple --output_width=192 --output_height=108 --input_width=192 --input_height=108 --train=False --batch_size 64 --num_test 50
     
     $ num_test代表要生成的图片数目，但由于训练中将以*DATASET_NAME_BATCHSIZE_HEIGHT_WIDTH*的方式保存权重，仍需携带batchSize参数以找到权重路径。
-
-
-
-
-## 作者
-
-Han Ruizhi / [@Han Zhizhi](https://github.com/HanZhizhi//)
